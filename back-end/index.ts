@@ -7,6 +7,7 @@ import fs from "fs";
 import unzipper from "unzipper";
 import { exec, spawn } from "child_process";
 import util from "util";
+import { runCommand } from "./utils";
 
 const DEPLOYMENTS_DIR = process.env.DEPLOYMENTS_DIR ?? "/home/codersubham/deployments";
 
@@ -38,6 +39,7 @@ app.post("/send-file", upload.single("project"), async (req, res) => {
         const deploymentPath = DEPLOYMENTS_DIR + `/${deploymentId}`;
         const zipPath = `${deploymentPath}/${file.originalname ?? "project.zip"}`;
         const sourcePath = `${deploymentPath}/source`;
+        const logPath = `${deploymentPath}/logs.txt`;
 
         //Creating the folder to put the zip file
         await fsPromises.mkdir(deploymentPath, {
@@ -60,19 +62,20 @@ app.post("/send-file", upload.single("project"), async (req, res) => {
             });
         }
 
-        await execPromise("npm install", { cwd: sourcePath });
+        await runCommand("npm", ["install"], sourcePath);
+        await runCommand("npm", ["run", "build"], sourcePath);
 
-        const child = spawn("npm", ["run", "dev"], {
-            cwd: sourcePath,
-        });
+        // const child = spawn("npm", ["run", "dev"], {
+        //     cwd: sourcePath,
+        // });
 
-        child.stdout.on("data", (data) => {
-            console.log(`[${deploymentId}]`, data.toString());
-        });
+        // child.stdout.on("data", (data) => {
+        //     console.log(`[${deploymentId}]`, data.toString());
+        // });
 
-        child.stderr.on("data", (data) => {
-            console.log(`[${deploymentId}]`, data.toString());
-        });
+        // child.stderr.on("data", (data) => {
+        //     console.log(`[${deploymentId}]`, data.toString());
+        // });
 
         res.status(201).json({ message: "Successfully created the file" });
     } catch (error) {
