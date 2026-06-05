@@ -26,7 +26,7 @@ app.get("/health", (req, res) => {
 
 app.post("/send-file", upload.single("project"), async (req, res) => {
     const file = req.file;
-    if (!file?.originalname.endsWith(".zip")) {
+    if (!file || !file.originalname.endsWith(".zip")) {
         res.status(400).json({
             message: "Please provide valid zip file",
         });
@@ -36,21 +36,29 @@ app.post("/send-file", upload.single("project"), async (req, res) => {
     try {
         const deploymentId = randomUUID();
         const deploymentPath = DEPLOYMENTS_DIR + `/${deploymentId}`;
-        const zipPath = `${deploymentPath}/${req.file?.originalname ?? "project.zip"}`;
+        const zipPath = `${deploymentPath}/${file.originalname ?? "project.zip"}`;
         const sourcePath = `${deploymentPath}/source`;
-        console.log(req.file?.originalname);
+
         //Creating the folder to put the zip file
         await fsPromises.mkdir(deploymentPath, {
             recursive: true,
         });
         //Zip file added
-        await fsPromises.writeFile(zipPath, req.file?.buffer!);
+        await fsPromises.writeFile(zipPath, file.buffer!);
         await fsPromises.mkdir(sourcePath);
 
         await fs
             .createReadStream(zipPath)
             .pipe(unzipper.Extract({ path: sourcePath }))
             .promise();
+        //Checking for the existance of package.json file in the root folder
+        const packageExists = fs.existsSync(sourcePath + "/package.json");
+
+        if (!packageExists) {
+            return res.status(400).json({
+                error: "Package.json doesnot exist",
+            });
+        }
 
         await execPromise("npm install", { cwd: sourcePath });
 
