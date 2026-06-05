@@ -21,3 +21,8 @@ I ran npm install inside the source folder of the extracted zip file user had gi
 
 Then created a child process cause when i asked it why can't i just run the npm run dev in the execpromise it was saying that if i do that then it will not return from the promise as it is a long running process and the browser will not get any response so
 we created a spawn a child which create a another terminal let's say and run the npm run dev inside that folder then it is successfully running the user's project
+
+- 05/06/26
+
+Today I first Check for package.json file to the user's given zip file
+if there is not json file I return with error
