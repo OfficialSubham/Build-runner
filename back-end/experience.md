@@ -26,3 +26,9 @@ we created a spawn a child which create a another terminal let's say and run the
 
 Today I first Check for package.json file to the user's given zip file
 if there is not json file I return with error
+
+Now I will Remove the exec promise cause exec promise will actually first fully run the install then returns once it is finished
+on the other hand after spawning a child it will giving all the response along the way
+
+Created a promisified version to run command very easily
+Now i am moving from using npm run dev which is a infinite running process which can also be called as a service to only build the user's project for now then later using docker and all.
