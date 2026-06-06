@@ -61,9 +61,23 @@ app.post("/send-file", upload.single("project"), async (req, res) => {
                 error: "Package.json doesnot exist",
             });
         }
-
-        await runCommand("npm", ["install"], sourcePath);
-        await runCommand("npm", ["run", "build"], sourcePath);
+        const logStream = fs.createWriteStream(logPath, {
+            flags: "a",
+        });
+        await runCommand(
+            "npm",
+            ["install"],
+            sourcePath,
+            logStream,
+            "Installing Packages",
+        );
+        await runCommand(
+            "npm",
+            ["run", "build"],
+            sourcePath,
+            logStream,
+            "Running Build The Project",
+        );
 
         // const child = spawn("npm", ["run", "dev"], {
         //     cwd: sourcePath,
