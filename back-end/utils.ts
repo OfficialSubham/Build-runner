@@ -1,18 +1,29 @@
 import { spawn } from "child_process";
-
-export const runCommand = async (command: string, args: string[], cwd: string) => {
+import { WriteStream } from "fs";
+export const runCommand = async (
+    command: string,
+    args: string[],
+    cwd: string,
+    logStream: WriteStream,
+    commandType: string,
+) => {
     return new Promise<void>((resolve, reject) => {
+        process.stdout.write(`Starting ${commandType}...`);
         const child = spawn(command, args, {
             cwd,
             shell: true,
         });
 
         child.stdout.on("data", (data) => {
-            console.log(data.toString());
+            const text = data.toString();
+            process.stdout.write(text);
+            logStream.write(text);
         });
 
         child.stderr.on("data", (data) => {
-            console.log(data.toString());
+            const text = data.toString();
+            process.stdout.write(text);
+            logStream.write(text);
         });
 
         child.on("close", (code) => {
