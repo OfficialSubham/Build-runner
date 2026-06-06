@@ -61,9 +61,30 @@ app.post("/send-file", upload.single("project"), async (req, res) => {
                 error: "Package.json doesnot exist",
             });
         }
+
         const logStream = fs.createWriteStream(logPath, {
             flags: "a",
         });
+        //Checking for the type of the project
+
+        const packageJson = JSON.parse(
+            fs.readFileSync(`${sourcePath}/package.json`, "utf8"),
+        );
+
+        if (packageJson.dependencies.next) {
+            const text = "--- Next Project ---\n\n";
+            process.stdout.write(text);
+            logStream.write(text);
+        } else if (packageJson.dependencies.react) {
+            const text = "--- React Project ---\n\n";
+            process.stdout.write(text);
+            logStream.write(text);
+        } else {
+            const text = "---  Project not identified ---\n\n";
+            process.stdout.write(text);
+            logStream.write(text);
+        }
+
         await runCommand(
             "npm",
             ["install"],
@@ -78,18 +99,6 @@ app.post("/send-file", upload.single("project"), async (req, res) => {
             logStream,
             "Running Build The Project",
         );
-
-        // const child = spawn("npm", ["run", "dev"], {
-        //     cwd: sourcePath,
-        // });
-
-        // child.stdout.on("data", (data) => {
-        //     console.log(`[${deploymentId}]`, data.toString());
-        // });
-
-        // child.stderr.on("data", (data) => {
-        //     console.log(`[${deploymentId}]`, data.toString());
-        // });
 
         res.status(201).json({ message: "Successfully created the file" });
     } catch (error) {
