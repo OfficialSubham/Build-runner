@@ -32,3 +32,9 @@ on the other hand after spawning a child it will giving all the response along t
 
 Created a promisified version to run command very easily
 Now i am moving from using npm run dev which is a infinite running process which can also be called as a service to only build the user's project for now then later using docker and all.
+
+- 06/06/26
+
+Yesterday I also modified some logs so that it is easy to understand what process is going on.
+
+Now checking the type of project by searching for react, next dependencies in package.json file after reading it through fs.readFileSync
