@@ -38,3 +38,13 @@ Now i am moving from using npm run dev which is a infinite running process which
 Yesterday I also modified some logs so that it is easy to understand what process is going on.
 
 Now checking the type of project by searching for react, next dependencies in package.json file after reading it through fs.readFileSync
+
+- 07/06/26
+
+So alot of things would be removed and add/changed by today
+But there is a reason for that
+first better readability as well as easy to understand what happening
+
+First creating a start building function where everything will be done related to building
+
+-- Future Addings in the acutal vercel clone project - Meta Data json file in each project
