@@ -5,16 +5,26 @@ import { randomUUID } from "crypto";
 import fsPromises from "fs/promises";
 import fs from "fs";
 import unzipper from "unzipper";
-import { exec, spawn } from "child_process";
-import util from "util";
-import { runCommand } from "./utils";
+import type { Response } from "express";
+import { createFile, runCommand, saveZip, startBuilding } from "./utils";
 
 const DEPLOYMENTS_DIR = process.env.DEPLOYMENTS_DIR ?? "/home/codersubham/deployments";
 
 const upload = multer({
     storage: multer.memoryStorage(),
 });
-const execPromise = util.promisify(exec);
+
+//Keeping a map of users who are checking for their logs
+export const clients: Record<string, Response[]> = {};
+
+//Adding the clients
+const addClient = (deploymentId: string, res: Response) => {
+    if (!clients[deploymentId]) {
+        clients[deploymentId] = [];
+    }
+
+    clients[deploymentId].push(res);
+};
 
 const app = express();
 app.use(express.json());
@@ -36,75 +46,32 @@ app.post("/send-file", upload.single("project"), async (req, res) => {
 
     try {
         const deploymentId = randomUUID();
-        const deploymentPath = DEPLOYMENTS_DIR + `/${deploymentId}`;
-        const zipPath = `${deploymentPath}/${file.originalname ?? "project.zip"}`;
-        const sourcePath = `${deploymentPath}/source`;
-        const logPath = `${deploymentPath}/logs.txt`;
-
         //Creating the folder to put the zip file
-        await fsPromises.mkdir(deploymentPath, {
-            recursive: true,
-        });
+        await createFile(DEPLOYMENTS_DIR + "/" + deploymentId);
         //Zip file added
-        await fsPromises.writeFile(zipPath, file.buffer!);
-        await fsPromises.mkdir(sourcePath);
+        await saveZip(deploymentId, file);
 
-        await fs
-            .createReadStream(zipPath)
-            .pipe(unzipper.Extract({ path: sourcePath }))
-            .promise();
-        //Checking for the existance of package.json file in the root folder
-        const packageExists = fs.existsSync(sourcePath + "/package.json");
-
-        if (!packageExists) {
-            return res.status(400).json({
-                error: "Package.json doesnot exist",
-            });
-        }
-
-        const logStream = fs.createWriteStream(logPath, {
-            flags: "a",
-        });
-        //Checking for the type of the project
-
-        const packageJson = JSON.parse(
-            fs.readFileSync(`${sourcePath}/package.json`, "utf8"),
-        );
-
-        if (packageJson.dependencies.next) {
-            const text = "--- Next Project ---\n\n";
-            process.stdout.write(text);
-            logStream.write(text);
-        } else if (packageJson.dependencies.react) {
-            const text = "--- React Project ---\n\n";
-            process.stdout.write(text);
-            logStream.write(text);
-        } else {
-            const text = "---  Project not identified ---\n\n";
-            process.stdout.write(text);
-            logStream.write(text);
-        }
-
-        await runCommand(
-            "npm",
-            ["install"],
-            sourcePath,
-            logStream,
-            "Installing Packages",
-        );
-        await runCommand(
-            "npm",
-            ["run", "build"],
-            sourcePath,
-            logStream,
-            "Running Build The Project",
-        );
-
-        res.status(201).json({ message: "Successfully created the file" });
+        res.status(201).json({ message: "Successfully created the file", deploymentId });
+        startBuilding(deploymentId);
     } catch (error) {
         console.log("Error ->", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
+});
+
+app.get("/deployments/:deploymentId/logs/stream", (req, res) => {
+    //Setting up the headers for streaming the text files
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    const deploymentId = req.params.deploymentId;
+    addClient(deploymentId, res);
+
+    req.on("close", () => {
+        console.log("--- Running Close ---\n\n");
+        clients[deploymentId]?.filter((client) => client !== res);
+    });
 });
 
 app.listen(3000, () => {
