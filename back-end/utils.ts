@@ -146,6 +146,7 @@ export const startBuilding = async (deploymentId: string) => {
             "Running Build The Project",
             deploymentId,
         );
+        updateStatusJson(paths.statusPath, "SUCCESS");
     } catch (error) {
         console.log("Failed To Build \n\n Error ->", error);
         updateStatusJson(paths.statusPath, "FAILED");
