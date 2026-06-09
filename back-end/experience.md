@@ -47,4 +47,26 @@ first better readability as well as easy to understand what happening
 
 First creating a start building function where everything will be done related to building
 
--- Future Addings in the acutal vercel clone project - Meta Data json file in each project
+- 08/06/26
+
+So Continuing from yesterday here is the workflow
+After creating the root file I am saving the buffer zip file send by the user
+then returning the user about the deployment id at the same time starting the building
+where i check for the package.json file if there is not any throwing error
+
+Anyway cut to the long story short I transfered the building the project into a seperate function
+also made some resuable functions like creating file
+getting all deployments paths
+Updating status function
+Also added a status.json file to check for the status.
+I will cut the connection with the frontend after status got success or failed
+
+- 09/06/26
+
+Today made the frontend to show logs and status
+at the same time implemented react router dom
+
+In backend made a route for sending the logs and status to the frontend
+
+-- Future Addings in the acutal vercel clone project
+`Meta Data json file in each project`
