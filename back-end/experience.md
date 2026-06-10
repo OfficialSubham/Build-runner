@@ -68,5 +68,15 @@ at the same time implemented react router dom
 
 In backend made a route for sending the logs and status to the frontend
 
+- 10/06/26
+
+Everything had done i guess
+Like user giving me a zip file I made some checks and save the zip file in the deployments folder
+Then start building the project after the sending the deployment id
+While doing so I also made some checks and build the project
+
+Now its time to implement DOCKER into it.
+Let's go
+
 -- Future Addings in the acutal vercel clone project
 `Meta Data json file in each project`
