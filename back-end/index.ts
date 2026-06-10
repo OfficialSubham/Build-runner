@@ -8,6 +8,8 @@ import unzipper from "unzipper";
 import type { Response } from "express";
 import { createFile, saveZip, startBuilding, updateStatusJson } from "./utils";
 
+console.log(__dirname);
+
 const DEPLOYMENTS_DIR = process.env.DEPLOYMENTS_DIR ?? "/home/codersubham/deployments";
 
 const upload = multer({
@@ -101,6 +103,14 @@ app.get("/deployments/:deploymentId/logs/stream", (req, res) => {
         console.log("--- Running Close ---\n\n");
         clients[deploymentId]?.filter((client) => client !== res);
     });
+});
+
+app.use("/deployed/:deploymentId", (req, res, next) => {
+    const deploymentId = req.params.deploymentId;
+
+    const distPath = `${DEPLOYMENTS_DIR}/${deploymentId}/source/dist`;
+    console.log("DIST PATH : ", distPath);
+    express.static(distPath)(req, res, next);
 });
 
 app.listen(3000, () => {
