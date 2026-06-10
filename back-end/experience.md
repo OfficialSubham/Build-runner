@@ -78,5 +78,30 @@ While doing so I also made some checks and build the project
 Now its time to implement DOCKER into it.
 Let's go
 
+Okay before implementing docker I had implemented
+Sending static files to user in the deployment route of
+the backend port
+
+http://localhost:3000/deployed/:deploymentId/
+
+also get some troubleshooting about sending the assets
+
+what I had done is
+Taken the deployment id from the url
+then creating the distpath for that project
+after that i am sharing that using express.static
+
+The reason I understand for the usage of express.static is
+when that file would get requested by the browser I will not able to know the file name to share
+so by using the express.static
+Any file requested under that route would be search under dist
+and will get send to the user
+
+I will do this next `Adding a fallback `
+this will help to share the index.html file for the route based project
+cause when the project is route based i will not send the files we wanted
+so the fallback will just send I guess the main file for every route
+JS will do its work
+
 -- Future Addings in the acutal vercel clone project
 `Meta Data json file in each project`
