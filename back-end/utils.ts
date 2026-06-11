@@ -18,6 +18,7 @@ export const runCommand = async (
 ) => {
     return new Promise<void>((resolve, reject) => {
         process.stdout.write(`Starting ${commandType}...`);
+        logStream.write(`Starting ${commandType}...`);
         const child = spawn(command, args, {
             cwd,
             shell: true,
@@ -146,6 +147,7 @@ export const startBuilding = async (deploymentId: string) => {
             "Running Build The Project",
             deploymentId,
         );
+        logStream.write("--- Successfully Completed ---");
         updateStatusJson(paths.statusPath, "SUCCESS");
     } catch (error) {
         console.log("Failed To Build \n\n Error ->", error);
