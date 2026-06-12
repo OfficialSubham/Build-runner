@@ -103,5 +103,19 @@ cause when the project is route based i will not send the files we wanted
 so the fallback will just send I guess the main file for every route
 JS will do its work
 
+- 12/06/26
+
+Learnings :
+
+    > Before implementing docker i tried to implement a route based react project but on doing so I find out that project is not understanding the route as if it is nested
+    > The problem I am facing is that the fallback is getting hit
+    but the route is not the one we need in order to fetch the data
+    so I am deciding to move to docker
+
+    > So now we know how to server single page applications (SPA)
+
+Moving on to docker
+let's get cracking
+
 -- Future Addings in the acutal vercel clone project
 `Meta Data json file in each project`
