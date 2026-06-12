@@ -109,8 +109,15 @@ app.use("/deployed/:deploymentId", (req, res, next) => {
     const deploymentId = req.params.deploymentId;
 
     const distPath = `${DEPLOYMENTS_DIR}/${deploymentId}/source/dist`;
-    console.log("DIST PATH : ", distPath);
     express.static(distPath)(req, res, next);
+});
+
+app.get("/deployed/:deploymentId/*path", (req, res) => {
+    console.log("Fallback Hit : ", req.originalUrl);
+    const deploymentId = req.params.deploymentId;
+    const distPath = `${DEPLOYMENTS_DIR}/${deploymentId}/source/dist/index.html`;
+
+    res.sendFile(distPath);
 });
 
 app.listen(3000, () => {
