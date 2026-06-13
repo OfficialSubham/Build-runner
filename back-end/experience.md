@@ -117,5 +117,25 @@ Learnings :
 Moving on to docker
 let's get cracking
 
+- 13/06/26
+
+I guess I had written this before but still
+the reason for using spawn instead of promisified version of exec
+is that exec will not return the stream of logs it will return once the whole function
+got finished where as spawn return logs live
+
+Learned spawn is a asyncronous process and there is no use of trycatch cause catch block never runs
+as we are not waiting while doing the work
+
+The thing I am currently doing is sending the outputs to each client with the same deployment Id
+which is actually needed in vercel clone not in this build runner project so i commented it out
+
+we should always close the logstream
+removed network=none from the docker cause we are unable to install
+packages
+
+we later improved it by only allowing downloads from npm registry and github
+else would not be allowed cause user can send malicious things
+
 -- Future Addings in the acutal vercel clone project
 `Meta Data json file in each project`
