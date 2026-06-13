@@ -28,18 +28,22 @@ export const runCommand = async (
             const text = data.toString();
             process.stdout.write(text);
             logStream.write(text);
-            clients[deploymentId]?.forEach((client) => {
-                client.write(`Data : ${text}\n`);
-            });
+
+            //This need in vercel clone
+            // clients[deploymentId]?.forEach((client) => {
+            //     client.write(`Data : ${text}\n`);
+            // });
         });
 
         child.stderr.on("data", (data) => {
             const text = data.toString();
             process.stdout.write(text);
             logStream.write(text);
-            clients[deploymentId]?.forEach((client) => {
-                client.write(`Data : ${text}\n`);
-            });
+
+            //This need in vercel clone
+            // clients[deploymentId]?.forEach((client) => {
+            //     client.write(`Data : ${text}\n`);
+            // });
         });
 
         child.on("close", (code) => {
@@ -72,6 +76,7 @@ export const updateStatusJson = async (
     deploymentStatusJsonPath: string,
     status: "BUILDING" | "FAILED" | "QUEUED" | "SUCCESS",
 ) => {
+    console.log("\n\n Updating Status to :", status, "\n\n");
     await fsPromises.writeFile(deploymentStatusJsonPath, JSON.stringify({ status }));
 };
 
@@ -95,8 +100,64 @@ export const extractFile = async (deploymentId: string) => {
         .promise();
 };
 
+export const dockerBuild = async (sourceDir: string, logStream: WriteStream) => {
+    return new Promise<void>((resolve, reject) => {
+        const child = spawn("docker", [
+            "run",
+            "--rm",
+            "--memory=512m",
+            "--cpus=1",
+            // "--network=none",
+            "-v",
+            `${sourceDir}:/app`,
+            "-w",
+            "/app",
+            "node:22",
+            "sh",
+            "-c",
+            "npm install && npm run build",
+        ]);
+
+        const timeOut = setTimeout(
+            () => {
+                logStream.write("\nBuild timed out after 5 minutes\n");
+                child.kill("SIGKILL");
+            },
+            5 * 60 * 1000,
+        );
+
+        child.stdout.on("data", (data) => {
+            const text = data.toString();
+            console.log("FROM DOCKER : ", text);
+            logStream.write(text);
+        });
+
+        child.stderr.on("data", (data) => {
+            const text = data.toString();
+            console.log("FROM DOCKER : ", text);
+            logStream.write(text);
+        });
+
+        child.on("error", (err) => {
+            clearTimeout(timeOut);
+            reject(err);
+        });
+
+        child.on("close", (code) => {
+            clearTimeout(timeOut);
+            if (code == 0) {
+                console.log("--- Successfully Build ---");
+                resolve();
+            } else {
+                reject(new Error(`Process exited with code ${code}`));
+            }
+        });
+    });
+};
+
 export const startBuilding = async (deploymentId: string) => {
     const paths = getDeploymentsPath(deploymentId);
+    let logStream: WriteStream | undefined;
     try {
         updateStatusJson(paths.statusPath, "BUILDING");
         await createFile(paths.sourceDir);
@@ -105,14 +166,14 @@ export const startBuilding = async (deploymentId: string) => {
         const packageExists = fs.existsSync(paths.sourceDir + "/package.json");
 
         if (!packageExists) {
-            throw new Error("Package.json does not exists in you project");
+            throw new Error("package.json does not exists in your project root folder");
         }
 
-        const logStream = fs.createWriteStream(paths.logsPath, {
+        logStream = fs.createWriteStream(paths.logsPath, {
             flags: "a",
         });
-        //Checking for the type of the project
 
+        //Checking for the type of the project
         const packageJson = JSON.parse(
             fs.readFileSync(`${paths.sourceDir}/package.json`, "utf8"),
         );
@@ -131,26 +192,30 @@ export const startBuilding = async (deploymentId: string) => {
             logStream.write(text);
         }
 
-        await runCommand(
-            "npm",
-            ["install"],
-            paths.sourceDir,
-            logStream,
-            "Installing Packages",
-            deploymentId,
-        );
-        await runCommand(
-            "npm",
-            ["run", "build"],
-            paths.sourceDir,
-            logStream,
-            "Running Build The Project",
-            deploymentId,
-        );
+        await dockerBuild(paths.sourceDir, logStream);
+
+        // await runCommand(
+        //     "npm",
+        //     ["install"],
+        //     paths.sourceDir,
+        //     logStream,
+        //     "Installing Packages",
+        //     deploymentId,
+        // );
+        // await runCommand(
+        //     "npm",
+        //     ["run", "build"],
+        //     paths.sourceDir,
+        //     logStream,
+        //     "Running Build The Project",
+        //     deploymentId,
+        // );
         logStream.write("--- Successfully Completed ---");
         updateStatusJson(paths.statusPath, "SUCCESS");
     } catch (error) {
         console.log("Failed To Build \n\n Error ->", error);
         updateStatusJson(paths.statusPath, "FAILED");
+    } finally {
+        logStream?.end();
     }
 };
