@@ -81,9 +81,10 @@ app.get("/deployments/:deploymentId/status", async (req, res) => {
             status,
         });
     } catch (error) {
+        //Sending failed status as if there is no logs or status file is present this will run
         res.status(500).json({
-            status: null,
-            logs: null,
+            status: "FAILED",
+            logs: "Nothing to log",
             message: "Logs not found",
         });
     }
