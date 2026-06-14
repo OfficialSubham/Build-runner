@@ -107,7 +107,6 @@ export const dockerBuild = async (sourceDir: string, logStream: WriteStream) => 
             "--rm",
             "--memory=512m",
             "--cpus=1",
-            // "--network=none",
             "-v",
             `${sourceDir}:/app`,
             "-w",
@@ -194,22 +193,6 @@ export const startBuilding = async (deploymentId: string) => {
 
         await dockerBuild(paths.sourceDir, logStream);
 
-        // await runCommand(
-        //     "npm",
-        //     ["install"],
-        //     paths.sourceDir,
-        //     logStream,
-        //     "Installing Packages",
-        //     deploymentId,
-        // );
-        // await runCommand(
-        //     "npm",
-        //     ["run", "build"],
-        //     paths.sourceDir,
-        //     logStream,
-        //     "Running Build The Project",
-        //     deploymentId,
-        // );
         logStream.write("--- Successfully Completed ---");
         updateStatusJson(paths.statusPath, "SUCCESS");
     } catch (error) {
