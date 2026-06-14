@@ -137,5 +137,37 @@ packages
 we later improved it by only allowing downloads from npm registry and github
 else would not be allowed cause user can send malicious things
 
+- 14/06/26
+
+I implemented serving files mostly static files through subdomains
+
+I learned about how do i actually create subdomains and serve files related to that
+I actually thought this to be difficult but it is pretty easy
+first in your dns provider you have to specify something like this
+\*.mydomain.com/ to catch routes
+
+then in your server at last put a app.use
+where you fetch the subdomains and serve files related to that
+
+at last because it will have different route so I have to do this /api/project route to be handle with a different handler and rest of the subdomains thing with different handler
+
+here is the subdomain work flow  
+i am fetching the subdomain then moving on to the next route
+
+then again a middleware which will send all the static files asked by browser
+from the dist folder
+
+then a get fallback which will only send the html file whatever it is being asked for
+
+Another thing faced is before this I was doing route base deployment
+like deployed/projectId/blah/blah/blah
+
+there i need base as ./ cause i want the js files to be send from that url
+but now as i currently have subdmains so every file has its own root route
+now I have to use / and base in vite.config.ts
+
+so when it was ./ it was going with the continuation of the route but now it is
+going from the root so it is asking to give the js file script which is in the index.html from the root of the dist that's it.
+
 -- Future Addings in the acutal vercel clone project
 `Meta Data json file in each project`
