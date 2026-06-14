@@ -7,6 +7,7 @@ import fs from "fs";
 import unzipper from "unzipper";
 import type { Response } from "express";
 import { createFile, saveZip, startBuilding, updateStatusJson } from "./utils";
+import path from "path";
 
 console.log(__dirname);
 
@@ -119,6 +120,25 @@ app.get("/deployed/:deploymentId/*path", (req, res) => {
     const distPath = `${DEPLOYMENTS_DIR}/${deploymentId}/source/dist/index.html`;
 
     res.sendFile(distPath);
+});
+
+app.use((req, res, next) => {
+    const projectId = req.hostname.split(".")[0];
+    console.log("PROJECT ID ->", projectId);
+    req.projectId = projectId ?? "";
+    next();
+});
+
+app.use((req, res, next) => {
+    const projectDir = path.join(DEPLOYMENTS_DIR, req.projectId, "source/dist/");
+    express.static(projectDir)(req, res, next);
+});
+
+app.get("*path", (req, res) => {
+    const projectDir = path.join(DEPLOYMENTS_DIR, req.projectId, "source/dist/");
+    console.log("SENDING HTML ONLY");
+    console.log("PROJECT DIR -> ", projectDir);
+    res.sendFile(path.join(projectDir, "index.html"));
 });
 
 app.listen(3000, () => {
