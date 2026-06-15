@@ -11,7 +11,7 @@ const SendZip = () => {
         if (!file) return;
         const formData = new FormData();
         formData.append("project", file);
-        const res = await fetch(`${URL}/send-file`, {
+        const res = await fetch(`${URL}/api/deployments/send-file`, {
             method: "POST",
             body: formData,
         });

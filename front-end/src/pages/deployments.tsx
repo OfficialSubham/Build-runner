@@ -13,7 +13,7 @@ const Deployments = () => {
 
     useEffect(() => {
         intervalId.current = setInterval(async () => {
-            const res = await fetch(`${URL}/deployments/${deploymentId}/status`);
+            const res = await fetch(`${URL}/api/deployments/${deploymentId}/status`);
             const data = await res.json();
             console.log(data.status);
             if (!data.status) {
