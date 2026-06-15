@@ -1,12 +1,13 @@
 import { spawn } from "child_process";
 import { WriteStream } from "fs";
-import { clients } from ".";
+import { clients } from "./routes/deployment";
 import fs from "fs";
 import fsPromises from "fs/promises";
 import path from "path";
 import unzipper from "unzipper";
 
-const DEPLOYMENTS_ROOT = process.env.DEPLOYMENTS_ROOT ?? "/home/codersubham/deployments";
+export const DEPLOYMENTS_ROOT =
+    process.env.DEPLOYMENTS_ROOT ?? "/home/codersubham/deployments";
 
 export const runCommand = async (
     command: string,
