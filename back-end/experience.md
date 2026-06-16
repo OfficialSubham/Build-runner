@@ -169,5 +169,9 @@ now I have to use / and base in vite.config.ts
 so when it was ./ it was going with the continuation of the route but now it is
 going from the root so it is asking to give the js file script which is in the index.html from the root of the dist that's it.
 
+- 16/06/26
+
+Now its time to move on to long running contianers
+
 -- Future Addings in the acutal vercel clone project
 `Meta Data json file in each project`
