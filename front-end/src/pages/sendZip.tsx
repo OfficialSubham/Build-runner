@@ -5,17 +5,30 @@ const SendZip = () => {
     const URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
     const [file, setFile] = useState<File | null>(null);
+    const [uploadType, setUploadType] = useState("static");
     const deploymentIdRef = useRef("");
+
+    const handleOnchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setUploadType(e.target.value);
+    };
 
     const handleSubmit = async () => {
         if (!file) return;
         const formData = new FormData();
         formData.append("project", file);
-        const res = await fetch(`${URL}/api/deployments/send-file`, {
-            method: "POST",
-            body: formData,
-        });
-        const data = await res.json();
+        let res;
+        if (uploadType == "static") {
+            res = await fetch(`${URL}/api/deployments/send-file`, {
+                method: "POST",
+                body: formData,
+            });
+        } else {
+            res = await fetch(`${URL}/api/deployments/container/send-file`, {
+                method: "POST",
+                body: formData,
+            });
+        }
+        const data = await res?.json();
         if (data.deploymentId) {
             deploymentIdRef.current = data.deploymentId;
             navigate(`/deployments/${data.deploymentId}`);
@@ -33,6 +46,16 @@ const SendZip = () => {
                     }}
                 />
                 <button onClick={handleSubmit}>Submit</button>
+                <div>
+                    <select
+                        name="deploymentType"
+                        defaultValue={"static"}
+                        onChange={handleOnchange}
+                    >
+                        <option value="static">Static</option>
+                        <option value="long-running">Long Running</option>
+                    </select>
+                </div>
             </div>
         </>
     );
