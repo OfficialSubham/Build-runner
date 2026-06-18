@@ -16,18 +16,13 @@ const SendZip = () => {
         if (!file) return;
         const formData = new FormData();
         formData.append("project", file);
-        let res;
-        if (uploadType == "static") {
-            res = await fetch(`${URL}/api/deployments/send-file`, {
-                method: "POST",
-                body: formData,
-            });
-        } else {
-            res = await fetch(`${URL}/api/deployments/container/send-file`, {
-                method: "POST",
-                body: formData,
-            });
-        }
+        formData.append("buildType", uploadType);
+
+        const res = await fetch(`${URL}/api/deployments/send-file`, {
+            method: "POST",
+            body: formData,
+        });
+
         const data = await res?.json();
         if (data.deploymentId) {
             deploymentIdRef.current = data.deploymentId;
