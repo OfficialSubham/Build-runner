@@ -31,6 +31,8 @@ const deploymentRoute = Router();
 
 deploymentRoute.post("/send-file", upload.single("project"), async (req, res) => {
     const file = req.file;
+    const buildType = req.body.buildType;
+    console.log("BUILD TYPE : ", buildType);
     if (!file || !file.originalname.endsWith(".zip")) {
         res.status(400).json({
             message: "Please provide valid zip file",
@@ -53,7 +55,10 @@ deploymentRoute.post("/send-file", upload.single("project"), async (req, res) =>
         await saveZip(deploymentId, file);
 
         res.status(201).json({ message: "Successfully created the file", deploymentId });
-        startBuilding(deploymentId);
+        if (buildType == "static") startBuilding(deploymentId);
+        else if (buildType == "long-running") {
+            console.log("Building Here");
+        }
     } catch (error) {
         console.log("Error ->", error);
         res.status(500).json({ message: "Internal Server Error" });
