@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { DEPLOYMENTS_ROOT } from "../utils";
+import { DEPLOYMENTS_ROOT } from "../helpers/utils";
 
 const projectRoute = Router();
 
