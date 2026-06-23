@@ -6,7 +6,7 @@ import {
     saveZip,
     startBuilding,
     updateStatusJson,
-} from "../utils";
+} from "../helpers/utils";
 import { randomUUID } from "crypto";
 import multer from "multer";
 import fsPromises from "fs/promises";
@@ -55,10 +55,9 @@ deploymentRoute.post("/send-file", upload.single("project"), async (req, res) =>
         await saveZip(deploymentId, file);
 
         res.status(201).json({ message: "Successfully created the file", deploymentId });
-        if (buildType == "static") startBuilding(deploymentId);
-        else if (buildType == "long-running") {
-            console.log("Building Here");
-        }
+        setImmediate(() => {
+            startBuilding(deploymentId, buildType);
+        });
     } catch (error) {
         console.log("Error ->", error);
         res.status(500).json({ message: "Internal Server Error" });
