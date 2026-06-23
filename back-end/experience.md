@@ -173,5 +173,26 @@ going from the root so it is asking to give the js file script which is in the i
 
 Now its time to move on to long running contianers
 
+- 23/06/26
+
+Sharing exp after long time due to some events happened
+Today I am implementing docker suff for long running containers
+
+I understood about the use of CMD and RUN in docker file
+the commands specified in CMD run evertime the container runs
+on the other hand RUN commands run when the containers build
+
+The first dot in COPY is where the source file is located and the second dot is for
+where you want to put the files in /app cause you most probably setup WORKDIR as /app
+
+Understand about setImmediate this is kind of a queue like when i use set immediate
+I am telling the server to complete you thread then come back the finish this task then
+
+I faced a bun error as I am using bun in the project backend but I am doing npm install and build in the docker image
+So it is throwing error of bun now I have two options
+1st one using bun instead of node:22
+2nd one installing bun in the image first then move on
+Currently I will do the 2nd one
+
 -- Future Addings in the acutal vercel clone project
 `Meta Data json file in each project`
