@@ -4,7 +4,7 @@ import type { Response } from "express";
 import path from "path";
 import deploymentRoute from "./routes/deployment";
 import projectRoute from "./routes/projects";
-import { DEPLOYMENTS_ROOT } from "./utils";
+import { DEPLOYMENTS_ROOT } from "./helpers/utils";
 
 const app = express();
 app.use(express.json());
