@@ -194,5 +194,16 @@ So it is throwing error of bun now I have two options
 2nd one installing bun in the image first then move on
 Currently I will do the 2nd one
 
+- 24/06/26
+
+Today I understand the await/async task fully
+I know I will forget this later but still
+when a function or task is set to await the node thread pause
+but at the same time it is handling other requests
+when the result came from the await then it runs that below code
+
+and running a async function without await is called as fire and forget
+so my node thread is not paused there
+
 -- Future Addings in the acutal vercel clone project
 `Meta Data json file in each project`
