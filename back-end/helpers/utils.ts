@@ -9,6 +9,9 @@ import { clients } from "../routes/deployment";
 export const DEPLOYMENTS_ROOT =
     process.env.DEPLOYMENTS_ROOT ?? "/home/codersubham/deployments";
 
+//Doing this for temporarily
+let lastPort = 5000;
+
 export const runCommand = async (
     command: string,
     args: string[],
@@ -76,6 +79,7 @@ export const saveZip = async (deploymentId: string, zipFile: Express.Multer.File
 export const updateStatusJson = async (
     deploymentStatusJsonPath: string,
     status: "BUILDING" | "FAILED" | "QUEUED" | "SUCCESS",
+    port?: string,
 ) => {
     console.log("\n\n Updating Status to :", status, "\n\n");
     await fsPromises.writeFile(deploymentStatusJsonPath, JSON.stringify({ status }));
@@ -202,18 +206,17 @@ export const startLongRunningBuild = async (
 
         await runCommand(
             "docker",
-            ["run", "-d", "-p", "5000:3000", `deployment-${deploymentId}`],
+            ["run", "-d", "-p", `${lastPort++}:3000`, `deployment-${deploymentId}`],
             rootDir,
             logStream,
             "Building Docker Image",
             deploymentId,
         );
 
-        updateStatusJson(statusPath, "SUCCESS");
+        updateStatusJson(statusPath, "SUCCESS", lastPort.toString());
     } catch (error) {
         console.error("Error Occured : ", error);
-        updateStatusJson(statusPath, "FAILED");
-        return;
+        throw Error("Failed to build");
     }
 };
 
